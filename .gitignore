@@ -1,4 +1,5 @@
 compile_commands.json
 .git
-bin/tagi.cli
+./bin
+./lib
 .cache
