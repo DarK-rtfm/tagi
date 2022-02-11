@@ -1,5 +1,5 @@
 CXX=g++
-CCFLAGS=-Wall -O3
+CCFLAGS=-Wall -O3 -Werror
 LIBDIR=./lib
 BINDIR=./bin
 

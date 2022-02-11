@@ -14,9 +14,11 @@ addr4::addr4(std::string str) {
     std::stringstream s(str);
     value = 0;
     for (int i = 3; i >= 0; i--) {
-        uint8_t octet;
+        char _void;
+        int octet;
         s >> octet;
-        value += octet * pow(2, 8*i);
+        s >> _void;
+        value += octet * (1 << 8*i);
     }
 }
 
@@ -37,7 +39,7 @@ mask4::mask4(std::string str) {
     std::stringstream s(str);
     value = 0;
     for (int i = 3; i >= 0; i--) {
-        uint8_t octet;
+        int octet;
         s >> octet;
         value += octet * pow(2, 8*i);
     }
@@ -94,7 +96,16 @@ void net4::next() {
 }
 
 void net4::minimize(int needed) {
-    // mask = mask(MSB);
+    needed++;
+    int m = 0;
+    while (needed) (m++, needed >>= 1);
+    mask = mask4((uint8_t)(32-m));
+}
+
+std::string net4::display() {
+    std::stringstream s;
+    s << address.display() << " " << mask.display();
+    return s.str();
 }
 
 }
