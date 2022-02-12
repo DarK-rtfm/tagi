@@ -8,15 +8,7 @@ typedef unsigned __int128 uint128_t;
 namespace ip
 { 
 
-class addr4 {
-    public:
-        uint32_t value;
-
-        addr4() {value = 0;} // do not use directly
-        addr4(uint32_t);
-        addr4(std::string);
-        std::string display();
-};
+enum addrtype {NET, HOST, BROAD, MULTI, LINKLOCAL};
 
 class mask4 {
     public:
@@ -26,7 +18,21 @@ class mask4 {
         mask4(uint32_t);
         mask4(uint8_t);
         mask4(std::string);
-        std::string display();
+        std::string strDD();
+        std::string strHEX();
+        uint8_t cidr();
+};
+
+class addr4 {
+    public:
+        uint32_t value;
+
+        addr4() {value = 0;} // do not use directly
+        addr4(uint32_t);
+        addr4(std::string);
+        std::string strDD();
+        std::string strHEX();
+        addrtype type(mask4);
 };
 
 class net4 {
@@ -34,16 +40,14 @@ class net4 {
         addr4 address;
         mask4 mask;
 
-        net4(uint32_t addr4, uint8_t prefix);
         net4(addr4, mask4);
         net4(addr4);
-        net4(std::string addr4, std::string mask4);
 
         bool contains(addr4 address);
-        void next();
-        void minimize(int needed);
-
-        std::string display();
+        net4 next();
+        net4 minimize(int needed);
+        addrtype type();
+        addrtype type(addr4);
 };
 
 class addr6 {

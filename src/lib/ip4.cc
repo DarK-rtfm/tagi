@@ -4,7 +4,8 @@
 
 #include <iostream>
 
-namespace ip{
+namespace ip
+{
 
 addr4::addr4(uint32_t raw) {
     value = raw;
@@ -22,13 +23,25 @@ addr4::addr4(std::string str) {
     }
 }
 
-std::string addr4::display() {
+std::string addr4::strDD() {
     std::stringstream s;
     for (int i = 3; i >= 0; i--) {
         s << (value >> (i*8)) % 256;
         if (i) s << ".";
     }
     return s.str();
+}
+
+std::string addr4::strHEX() {
+    std::stringstream s;
+    s << "0x" << std::hex << value;
+    return s.str();
+}
+
+addrtype addr4::type(mask4 m) {
+    if (value % (~m.value+1) == 0) return NET;
+    if (value % (~m.value+1) == 1) return BROAD;
+    return HOST;
 }
 
 mask4::mask4(uint8_t prefix) {
@@ -39,13 +52,15 @@ mask4::mask4(std::string str) {
     std::stringstream s(str);
     value = 0;
     for (int i = 3; i >= 0; i--) {
+        char _void;
         int octet;
         s >> octet;
-        value += octet * pow(2, 8*i);
+        s >> _void;
+        value += octet * (1 << 8*i);
     }
 }
 
-std::string mask4::display() {
+std::string mask4::strDD() {
     std::stringstream s;
     for (int i = 3; i >= 0; i--) {
         s << (value >> (i*8)) % 256;
@@ -54,13 +69,21 @@ std::string mask4::display() {
     return s.str();
 }
 
-mask4::mask4(uint32_t raw) {
-    value = raw;
+std::string mask4::strHEX() {
+    std::stringstream s;
+    s << "0x" << std::hex << value;
+    return s.str();
 }
 
-net4::net4(uint32_t raw, uint8_t cidr) {
-    address = addr4(raw);
-    mask = mask4(cidr);
+uint8_t mask4::cidr() {
+    int32_t val = value;
+    uint8_t _cidr = 0;
+    do _cidr++; while (val <<= 1);
+    return _cidr;
+}
+
+mask4::mask4(uint32_t raw) {
+    value = raw;
 }
 
 net4::net4(addr4 aobj, mask4 mobj) {
@@ -78,34 +101,31 @@ net4::net4(addr4 aobj) {
     if (aobj.value < 0b10000000000000000000000000000000) cidr = 8;
     else if (aobj.value < 0b11000000000000000000000000000000) cidr = 16;
     else if (aobj.value < 0b11100000000000000000000000000000) cidr = 24;
-    else throw ("excuse me why tf would you net4 with non-useable nets");
+    else cidr = 32;
     mask = mask4(cidr);
 }
 
-net4::net4(std::string astr, std::string mstr) {
-    address = addr4(astr);
-    mask = mask4(mstr);
-}
-
 bool net4::contains(addr4 aobj) {
-    return (mask.value && aobj.value) == address.value;
+    return (mask.value & aobj.value) == address.value;
 }
 
-void net4::next() {
-    address.value += ~mask.value + 1;
+net4 net4::next() {
+    return net4(addr4(address.value + ~mask.value + 1), mask);
 }
 
-void net4::minimize(int needed) {
+net4 net4::minimize(int needed) {
     needed++;
     int m = 0;
     while (needed) (m++, needed >>= 1);
-    mask = mask4((uint8_t)(32-m));
+    return net4(address, mask4((uint8_t)(32-m)));
 }
 
-std::string net4::display() {
-    std::stringstream s;
-    s << address.display() << " " << mask.display();
-    return s.str();
+addrtype net4::type() {
+    return address.type(mask.value);
+}
+
+addrtype net4::type(addr4 a) {
+    return a.type(mask.value);
 }
 
 }
