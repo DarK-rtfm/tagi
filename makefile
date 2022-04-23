@@ -18,7 +18,7 @@ bindir:
 
 test: all
 	[ -d $(BINDIR)/test ] || mkdir -p $(BINDIR)/test
-	$(CXX) $(CCFLAGS) -lcppunit $(LIBDIR)/tagi.so ./test/main.cc -o $(BINDIR)/test/main.bin
+	$(CXX) $(CCFLAGS) -lcppunit $(LIBDIR)/tagi.so ./test/*.cc -o $(BINDIR)/test/main.bin
 	$(BINDIR)/test/main.bin
 
 .PHONY: all
