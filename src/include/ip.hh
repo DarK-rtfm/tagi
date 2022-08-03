@@ -56,6 +56,9 @@ namespace ip {
             enum netclass netclass();
             enum addrtype addrtype(addr4);
 
+
             bool contains(addr4 address);
+            friend bool operator==(const net4, const net4);
+            friend bool operator!=(const net4, const net4);
     };
 }
