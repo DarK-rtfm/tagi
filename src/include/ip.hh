@@ -1,78 +1,61 @@
 #include <cstdint>
 #include <string>
 
-//TODO: refactor into sep. hh
-typedef unsigned __int128 uint128_t;
+namespace ip {
+
+    enum netclass {CLASSLESS, A, B, C};
+    enum addrtype {NET, HOST, BROAD};
 
 
-namespace ip
-{ 
+    class addr4 {
+        protected:
+            union u_addr{
+                uint32_t full;
+                uint8_t parts[4];
+                void operator = (uint32_t val) {full = val;};
+            } value;
 
-enum addrtype {NET, HOST, BROAD, MULTI, LINKLOCAL};
+        public:
+            addr4(uint32_t);
+            addr4(uint8_t,uint8_t,uint8_t,uint8_t);
+            addr4(std::string);
 
-class mask4 {
-    public:
-        uint32_t value;
+            uint32_t toUInt32();
+            std::string toString();
+            bool operator < (addr4);
+            bool operator > (addr4);
+            bool operator == (addr4);
+            addr4 operator + (int);
+    };
 
-        mask4() {value = 0;} // do not use directly
-        mask4(uint32_t);
-        mask4(uint8_t);
-        mask4(std::string);
-        std::string strDD();
-        std::string strHEX();
-        uint8_t cidr();
-};
+    //  PROBLEM:
+    //  different set of constructors needed for mask validation and CIDR notation.
+    //  TODO: disallow use of addr4 constructors.
+    class mask4 : public addr4 {
+        public:
+            mask4() : addr4(0) {}; // TODO: FUCKING PURGE THE DEF CONSTRUCTORS
+            mask4(uint32_t);
+            mask4(uint8_t, uint8_t, uint8_t, uint8_t);
+            mask4(uint8_t);
+            mask4(std::string);
+            uint8_t toCIDR();
+    };
 
-class addr4 {
-    public:
-        uint32_t value;
+    class net4 {
+        private:
+            addr4 address;
+            mask4 mask;
+        public:
+            net4(addr4 netaddr, mask4 mask);
+            net4(addr4 netaddr);
 
-        addr4() {value = 0;} // do not use directly
-        addr4(uint32_t);
-        addr4(std::string);
-        std::string strDD();
-        std::string strHEX();
-        addrtype type(mask4);
-};
+            addr4 getaddress();
+            mask4 getmask();
+            addr4 getwild(); // TODO: ??
+            std::string toString();
+            enum netclass netclass();
+            enum addrtype addrtype(addr4);
 
-class net4 {
-    public:
-        addr4 address;
-        mask4 mask;
-
-        net4(addr4, mask4);
-        net4(addr4);
-
-        bool contains(addr4 address);
-        net4 next();
-        net4 minimize(int needed);
-        addrtype type();
-        addrtype type(addr4);
-};
-
-class addr6 {
-    protected:
-        uint128_t value;
-    public:
-        addr6(uint128_t value);
-        addr6(std::string value);
-        std::string display();
-};
-
-class net6 : addr6 {
-    private:
-        uint8_t prefix;
-    public:
-        net6(uint128_t addr6, uint8_t prefix);
-        net6(std::string addr6, uint8_t prefix);
-        net6(std::string);
-        net6(addr4);
-
-        bool containts(addr6 address);
-        net6 next();
-        net6 minimize(long needed);
-
-        std::string display();
-};
-
+            bool contains(addr4 address);
+    };
 }

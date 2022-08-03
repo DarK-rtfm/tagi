@@ -1,4 +1,5 @@
 #include "../include/ip.hh"
+#include <cstdint>
 #include <sstream>
 #include <cmath>
 
@@ -7,125 +8,92 @@
 namespace ip
 {
 
-addr4::addr4(uint32_t raw) {
-    value = raw;
-}
-
-addr4::addr4(std::string str) {
-    std::stringstream s(str);
-    value = 0;
-    for (int i = 3; i >= 0; i--) {
-        char _void;
-        int octet;
-        s >> octet;
-        s >> _void;
-        value += octet * (1 << 8*i);
+    addr4::addr4(uint32_t raw) {
+        value = raw;
     }
-}
 
-std::string addr4::strDD() {
-    std::stringstream s;
-    for (int i = 3; i >= 0; i--) {
-        s << (value >> (i*8)) % 256;
-        if (i) s << ".";
+    addr4::addr4(std::string str) {
+        std::stringstream s(str);
+        for (int i = 4; i --> 0;) {
+            char _void;
+            int octet;
+            s >> octet;
+            s >> _void;
+            value.parts[i] = octet;
+        }
     }
-    return s.str();
-}
 
-std::string addr4::strHEX() {
-    std::stringstream s;
-    s << "0x" << std::hex << value;
-    return s.str();
-}
-
-addrtype addr4::type(mask4 m) {
-    if (value % (~m.value+1) == 0) return NET;
-    if (value % (~m.value+1) == 1) return BROAD;
-    return HOST;
-}
-
-mask4::mask4(uint8_t prefix) {
-    value = ~((uint32_t) 0) >> (32 - prefix) << (32 - prefix);
-}
-
-mask4::mask4(std::string str) {
-    std::stringstream s(str);
-    value = 0;
-    for (int i = 3; i >= 0; i--) {
-        char _void;
-        int octet;
-        s >> octet;
-        s >> _void;
-        value += octet * (1 << 8*i);
+    addr4::addr4(uint8_t p1, uint8_t p2, uint8_t p3, uint8_t p4) {
+        value.parts[0] = p4;
+        value.parts[1] = p3;
+        value.parts[2] = p2;
+        value.parts[3] = p1;
     }
-}
 
-std::string mask4::strDD() {
-    std::stringstream s;
-    for (int i = 3; i >= 0; i--) {
-        s << (value >> (i*8)) % 256;
-        if (i) s << ".";
+    uint32_t addr4::toUInt32() {return value.full;}
+
+    std::string addr4::toString() {
+        std::ostringstream str;
+        for (auto i : {3, 2, 1, 0}) {
+            str << (int)value.parts[i];
+            if (i) str << '.';
+        }
+        return str.str();
     }
-    return s.str();
-}
 
-std::string mask4::strHEX() {
-    std::stringstream s;
-    s << "0x" << std::hex << value;
-    return s.str();
-}
+    bool addr4::operator<(addr4 other) {
+        return value.full < other.toUInt32();
+    }
 
-uint8_t mask4::cidr() {
-    int32_t val = value;
-    uint8_t _cidr = 0;
-    do _cidr++; while (val <<= 1);
-    return _cidr;
-}
+    bool addr4::operator>(addr4 other) {
+        return value.full > other.toUInt32();
+    }
 
-mask4::mask4(uint32_t raw) {
-    value = raw;
-}
+    bool addr4::operator==(addr4 other) {
+        return value.full == other.toUInt32();
+    }
 
-net4::net4(addr4 aobj, mask4 mobj) {
-    address = aobj;
-    mask = mobj;
-}
+    addr4 addr4::operator+(int size) {
+        return addr4(value.full+size);
+    }
 
-/*
- * Automatic mask based on IP Classes
- */
-net4::net4(addr4 aobj) {
-    address = aobj;
+    // TODO: Mask validation AND/OR proper exception handling without memory leek.
+    mask4::mask4(uint32_t raw) : addr4(raw){ }
+    mask4::mask4(std::string str) : addr4(str){ }
 
-    uint8_t cidr;
-    if (aobj.value < 0b10000000000000000000000000000000) cidr = 8;
-    else if (aobj.value < 0b11000000000000000000000000000000) cidr = 16;
-    else if (aobj.value < 0b11100000000000000000000000000000) cidr = 24;
-    else cidr = 32;
-    mask = mask4(cidr);
-}
+    mask4::mask4(uint8_t prefix) : addr4(0) {
+        value = ~((uint32_t) 0) >> (32 - prefix) << (32 - prefix);
+    }
 
-bool net4::contains(addr4 aobj) {
-    return (mask.value & aobj.value) == address.value;
-}
 
-net4 net4::next() {
-    return net4(addr4(address.value + ~mask.value + 1), mask);
-}
+    uint8_t mask4::toCIDR() {
+        int32_t val = value.full;
+        uint8_t _cidr = 0;
+        do _cidr++; while (val <<= 1);
+        return _cidr;
+    }
 
-net4 net4::minimize(int needed) {
-    needed++;
-    int m = 0;
-    while (needed) (m++, needed >>= 1);
-    return net4(address, mask4((uint8_t)(32-m)));
-}
 
-addrtype net4::type() {
-    return address.type(mask.value);
-}
+    net4::net4(addr4 aobj, mask4 mobj) : address(aobj), mask(mobj) {
+    }
 
-addrtype net4::type(addr4 a) {
-    return a.type(mask.value);
-}
+    /*
+     * Automatic mask based on IP Classes
+     */
+    net4::net4(addr4 aobj) : address(aobj) {
+        uint8_t cidr;
+        if (aobj < addr4(128, 0, 0, 0)) cidr = 8;
+        else if (aobj < addr4(192, 0, 0, 0)) cidr = 16;
+        else if (aobj < addr4(224, 0, 0, 0)) cidr = 24;
+        else cidr = 32;
+        mask = mask4(cidr);
+    }
+
+    bool net4::contains(addr4 aobj) {
+        return (mask.toUInt32() & aobj.toUInt32()) == address.toUInt32();
+    }
+
+    addr4 net4::getaddress() {return address;}
+    mask4 net4::getmask() {return mask;}
 
 }
