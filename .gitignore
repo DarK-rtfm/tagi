@@ -2,3 +2,6 @@ compile_commands.json
 *.so
 *.cli
 .cache
+.vscode
+bin/*
+lib/*
