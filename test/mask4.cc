@@ -3,9 +3,11 @@
 
 using namespace CppUnit;
 
-class Mask4T : public TestFixture {
+class Mask4T : public TestFixture
+{
     CPPUNIT_TEST_SUITE(Mask4T);
-    //TODO: add tests (balint)
+    // TODO: add tests (balint)
+    //: NOTE: lol.
     CPPUNIT_TEST_SUITE_END();
 };
 

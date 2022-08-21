@@ -14,6 +14,7 @@ namespace tools
         masks = {};
         for (auto req : _requirements)
         {
+            //: TODO: refactor into separate method.
             uint8_t cidr = 32;
             --req;
             if (req <= 1) //: NOTE: special case for 32 and 31 masks.
