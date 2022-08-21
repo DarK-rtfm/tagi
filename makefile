@@ -1,5 +1,5 @@
 CXX?=g++
-CCFLAGS=-Wall -O3 -Werror
+CCFLAGS=-Wall -Werror -O3
 LIBDIR=./lib
 BINDIR=./bin
 
@@ -11,10 +11,8 @@ tagi.so:
 	$(CXX) $(CCFLAGS) -shared -fPIC ./src/lib/*.cc -o ./lib/tagi.so
 
 tagi.cli: bindir tagi.so
-	$(CXX) $(CCFLAGS) $(LIBDIR)/tagi.so ./src/mains/cli.cc -o ./bin/tagi.cli
-
-bindir:
 	[ -d $(BINDIR) ] || mkdir -p $(BINDIR)
+	$(CXX) $(CCFLAGS) $(LIBDIR)/tagi.so ./src/mains/cli.cc -o ./bin/tagi.cli
 
 test: all
 	[ -d $(BINDIR)/test ] || mkdir -p $(BINDIR)/test
