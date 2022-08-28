@@ -1,7 +1,6 @@
 CXX?=g++
 INC_DIR=./src/include
-CCFLAGS=-Wall -Werror -O3 -I$(INC_DIR)
-CCFLAGS_BIN=$(CCFLAGS) -std=c++20
+CCFLAGS=-Wall -Werror -O3 -I$(INC_DIR) -std=c++20
 LIBDIR=./lib
 BINDIR=./bin
 
@@ -14,7 +13,7 @@ tagi.so:
 
 tagi.cli: tagi.so
 	[ -d $(BINDIR) ] || mkdir -p $(BINDIR)
-	$(CXX) $(CCFLAGS_BIN) $(LIBDIR)/tagi.so ./src/mains/cli.cc -o ./bin/tagi.cli
+	$(CXX) $(CCFLAGS) $(LIBDIR)/tagi.so ./src/mains/cli.cc -o ./bin/tagi.cli
 
 test: tagi.so 
 	[ -d $(BINDIR)/test ] || mkdir -p $(BINDIR)/test
