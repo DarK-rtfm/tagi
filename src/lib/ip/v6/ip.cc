@@ -12,5 +12,6 @@ namespace IP
     template <>
     std::string IP6::toString(char _flags)
     {
+        return "";
     }
 }

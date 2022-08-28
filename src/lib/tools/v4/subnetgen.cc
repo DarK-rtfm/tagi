@@ -1,17 +1,10 @@
 #include "tools/subnetgenv4.hh"
-#include "exceptions.hh"
-#include "ip/v4/net.hpp"
-#include "ip/v4/mask.hpp"
-#include "ip/v4/ip.hpp"
 #include <vector>
 namespace tools
 {
-    template class subnetgen<uint32_t>;
-
     template <>
-    subnetgen4::subnetgen(IP::NET4 _p, std::vector<uint32_t> _reqs) : pool(IP::IP4(0), IP::MASK4((uint8_t)0))
+    subnetgen4::subnetgen(IP::NET4 _p, std::vector<uint32_t> _reqs) : pool(_p)
     {
-        pool = _p;
         masks = {};
         for (auto req : _reqs)
         {
