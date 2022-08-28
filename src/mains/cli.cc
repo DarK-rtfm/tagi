@@ -1,5 +1,4 @@
-#include "../include/ip.hh"
-#include "../include/subnetgen.hh"
+#include "tools/subnetgenv4.hh"
 #include <iostream>
 #include <vector>
 #include <ranges>
@@ -8,10 +7,18 @@
 // ALSO ERROR HANDLING
 // EEEEEEEEE
 #define BRANCH_COMMANDS() int status = -1;
-#define COMMAND(name) if (status == -1 && args[1] == #name) status = name(args);
-#define FALLBACK(name) if (status == -1) status = name(args);
-#define ONERROR(name) if (status > 0) name(args);
-#define CHECK(X) if (!(X)) return 1;
+#define COMMAND(name)                     \
+    if (status == -1 && args[1] == #name) \
+        status = name(args);
+#define FALLBACK(name) \
+    if (status == -1)  \
+        status = name(args);
+#define ONERROR(name) \
+    if (status > 0)   \
+        name(args);
+#define CHECK(X) \
+    if (!(X))    \
+        return 1;
 
 typedef std::vector<std::string> args_t;
 
@@ -25,7 +32,6 @@ int main(int argc, char **argv)
     do
         args.push_back(std::string(*argv));
     while (*++argv);
-
 
     BRANCH_COMMANDS();
     COMMAND(cidr);
@@ -49,7 +55,7 @@ int cidr(const args_t args)
     CHECK(args.size() > 2);
     int nn = std::stoi(args[2]);
 
-    ip::mask4 m((uint8_t)nn);
+    IP::MASK4 m((uint8_t)nn);
     std::cout << args[2] << ": " << m.toString() << std::endl;
     return 0;
 }
@@ -57,10 +63,11 @@ int cidr(const args_t args)
 int subnet(const args_t args)
 {
     CHECK(args.size() > 3)
-    ip::net4 pool = ip::net4(ip::addr4(args[2]));
+    IP::NET4 pool = IP::NET4(IP::IP4(args[2]));
 
     std::vector<uint32_t> reqs({});
-    for (auto arg : args | std::ranges::views::drop(3)) {
+    for (auto arg : args | std::ranges::views::drop(3))
+    {
         reqs.push_back(std::stoi(arg));
     }
 
@@ -68,7 +75,7 @@ int subnet(const args_t args)
     auto subnets = g.generate();
     for (auto subnet : subnets)
     {
-        std::cout << subnet.getaddress().toString() << "/" << (int)subnet.getmask().toCIDR() << "\n";
+        std::cout << subnet.getAddress().toString(IP::IP4_STR::PAD) << "/" << (int)subnet.getMask().getValue() << "\n";
     }
     std::cout << std::flush;
     return 0;
