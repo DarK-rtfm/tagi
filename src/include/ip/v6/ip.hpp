@@ -3,21 +3,13 @@
 
 #include "ip/base/ip_t.hpp"
 
-namespace IP
-{
-    using IP6 = IP<__uint128_t>;
-    enum IP6_STR
-    {
-        FULL = 0,
-        SHORTENED = 1,
-        SKIPPED = 2
-    };
+namespace IP {
+using IP6 = IP<__uint128_t>;
+enum IP6_STR { FULL = 0, SHORTENED = 1, SKIPPED = 2 };
 
-    template <>
-    IP6::IP(std::string str);
+template <> IP6::IP(const std::string & str);
 
-    template <>
-    std::string IP6::toString(char _flags);
-}
+template <> std::string IP6::toString(char _flags);
+} // namespace IP
 
 #endif

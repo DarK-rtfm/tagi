@@ -6,7 +6,8 @@
 class E_NoSpec : public std::exception
 {
 public:
-    const char *what()
+    using std::exception::what;
+    const char *what() 
     {
         return "NoSpec: This method has no generic body, it can be only used with the specialized templates.";
     }
