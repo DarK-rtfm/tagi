@@ -1,6 +1,6 @@
-CXX?=g++
+CXX=clang++
 INC_DIR=./src/include
-CCFLAGS=-Wall -Werror -O3 -I$(INC_DIR) -std=c++20
+CCFLAGS=-Wall -Werror -O3 -I$(INC_DIR) -std=c++20 -stdlib=libc++
 LIBDIR=./lib
 BINDIR=./bin
 

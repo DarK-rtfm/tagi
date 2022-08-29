@@ -1,0 +1,4 @@
+Checks: '-checks=-*,llvm-*,cppcoreguidelines-*,performance-*,portability-*,readability-*,-*-magic-numbers'
+FormatStyle: 'file'
+
+
