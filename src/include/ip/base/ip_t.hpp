@@ -14,7 +14,7 @@ private:
 public:
   IP(T raw);
   IP(const std::vector<uint8_t> &parts);
-  IP(const std::string& str);
+  IP(const std::string &str);
 
   T getValue();
   std::string toString(char _flags = 0000);
@@ -34,10 +34,10 @@ public:
 template <typename T> IP<T>::IP(T raw) : value(raw) {}
 
 template <typename T> IP<T>::IP(const std::vector<uint8_t> & /*unused*/) {
-  throw std::string("CTR not implemented yet");
+  throw E_TODO;
 }
 
-template <typename T> IP<T>::IP(const std::string& str) { throw E_NoSpec(); }
+template <typename T> IP<T>::IP(const std::string &str) { throw E_NoSpec(); }
 
 template <typename T> T IP<T>::getValue() { return value; }
 

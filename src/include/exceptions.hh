@@ -13,4 +13,14 @@ public:
     }
 };
 
+class E_TODO : public std::exception
+{
+public:
+    using std::exception::what;
+    const char *what() 
+    {
+        return "TODO: This method is not implemented yet.";
+    }
+};
+
 #endif

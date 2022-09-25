@@ -65,7 +65,6 @@ int subnet(const args_t& args) {
   IP::NET4 pool = IP::NET4(IP::IP4(args[2]));
 
   std::vector<uint32_t> reqs({});
-  // waiting for libc++ to give out ranges...
   for (const auto& arg : args | std::views::drop(3)) {
     reqs.push_back(std::stoi(arg));
   }

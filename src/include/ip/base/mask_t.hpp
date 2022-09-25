@@ -26,13 +26,9 @@ public:
 };
 template <typename T> MASK<T>::MASK(uint8_t raw) : value(raw) {}
 
-template <typename T> MASK<T>::MASK(T bitmask) {
-  throw "CTR not implemented yet.";
-}
+template <typename T> MASK<T>::MASK(T bitmask) { throw E_TODO; }
 
-template <typename T> MASK<T>::MASK(const std::string &str) {
-  throw "This CTR is only avaible as specialized.";
-}
+template <typename T> MASK<T>::MASK(const std::string &str) { throw E_NoSpec; }
 
 template <typename T> uint8_t MASK<T>::getValue() { return value; }
 
@@ -43,7 +39,7 @@ template <typename T> T MASK<T>::getBitmask() {
 }
 
 template <typename T> std::string MASK<T>::toString(char _flags) {
-  throw "This CTR is only avaible as specialized.";
+  throw E_NoSpec;
 }
 
 template <typename T> bool operator<(const MASK<T> &lhs, const MASK<T> &rhs) {

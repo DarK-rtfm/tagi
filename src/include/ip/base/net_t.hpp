@@ -23,7 +23,7 @@ NET<T>::NET(IP<T> _addr, MASK<T> _mask) : address(_addr), mask(_mask) {}
 
 template <typename T>
 NET<T>::NET(IP<T> _addr) : address(_addr), mask((uint8_t)0) {
-  throw "This CTR is only avaible as specialized.";
+  throw E_NoSpec;
 }
 
 template <typename T> bool NET<T>::contains(IP<T> _addr) {
